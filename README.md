@@ -1,17 +1,17 @@
 # `C headers` files generator
-# I GIVE NO WARANTY FOR YOU UNSAFE MOVES)
+# I GIVE NO WARRANTY FOR YOU UNSAFE MOVES)
 
-This is an util for `generating headers files`.
+This is util for `generating headers files`.
 You should learn very small
 syntax for this program (much more `easier`)
 
 ## Working principle
 
-Afetr running this util will find all `*.c`
-files in current and sub dirrectories and
+After running this util will find all `*.c`
+files in current and subdirectories and
 read special syntax for getting information.
-After it this programm creates header file 
-for current file.
+After it, this program creates a header file 
+for the current file.
 
 # Syntax
 
@@ -107,4 +107,4 @@ You do not have to write
 - [Github link](https://github.com/YoungMeatBoy/headgen.git)
 - Email : `d2ms2nk@gmail.com`
 
-## On any issue report in github!
+## On any issue report in GitHub!
