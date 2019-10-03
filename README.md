@@ -1,31 +1,55 @@
 # `C headers` files generator
-# I GIVE NO WARRANTY FOR YOU UNSAFE MOVES)
 
-This is util for `generating headers files`.
-You should learn very small
-syntax for this program (much more `easier`)
+# Requiers
+```
+python >= 3.5
+```
 
-## Working principle
+# Instalation
+```bash
+pip install headgen
+pip3 install headgen
+```
+# Run
+```bash
+cd path/to/your/prject
+python -m headgen.headgen <flags>
+python3 -m headgen.headgen <flags>
+```
 
-After running this util will find all `*.c`
-files in current and subdirectories and
-read special syntax for getting information.
-After it, this program creates a header file 
-for the current file.
+# Flags
 
-# Syntax
+|Short flag|   Long flag   |          Description        | Default | 
+|----------|---------------|-----------------------------|---------|
+| `-p`     |`--pragma`     | Sets protection with pragma |  False  |
+|`-if`     |`--ifndef`     | Sets protection with ifndef |  True   |
+| `-i`     |`--info`       | Adds info on top of the file|  True   |
+|`-enc`    |`--encoding`   | Sets encoding of thу file   | `utf-8` |
+|`-im`     |`--ignore_main`| Ignores main.c file         |  True   |
 
-#### Functions
-Simple example for function
+
+# Functions
+
+- For automatic adding of the signature of any function
+type `//&signature`.
+
 ```c
 int sum_integers(int first, int second) //&signature
 {
     return first + second;
 }
 ```
-Simple example for function with documentation
-Just add `//&documentation` before doc
-Does not work inside function!
+ - After running to your header file this line will be added
+```c
+int sum_integers(int first, int second);
+```
+
+# Functions with documentation
+
+ - Example for function with documentation
+ - Add `//&documentation` before documentation
+ - Does not work inside function!
+
 ```c
 //&documentation
 /*!
@@ -39,9 +63,29 @@ int sum_integers(int first, int second) //&signature
     return first + second;
 }
 ```
-# Structures
 
-Just add `/*&structure` before struct
+#### Added to header:
+```c
+/*!
+@brief add two numbers
+@param[in] int first number
+@param[in] int second number
+@return int 
+*/
+int sum_integers(int first, int second);
+```
+
+# Structures
+#### Place the struct you want into:
+```c
+/*&structure
+
+place typedef struct
+or just a struct here
+
+*/
+```
+#### Example:
 ```c
 /*&structure
 typedef struct 
@@ -51,8 +95,28 @@ typedef struct
 } example
 */
 ```
+
+#### Added to header:
+```c
+typedef struct 
+{
+    int a;
+    int b;
+} example
+```
+
+
 # Enums
-Just add `//&structure` before struct
+#### Place the enum you want into:
+```c
+/*&enum
+
+Place enum here
+
+*/
+```
+
+#### Example
 ```c
 /*&enum
 enum codes
@@ -60,11 +124,19 @@ enum codes
     no error,
     error,
 };
-
 */
+```
+#### Added to header:
+```c
+enum codes
+{
+    no error,
+    error,
+};
 ```
 
 # Defines
+#### Example:
 ```c
 /*&defines
 #define 1 0 
@@ -73,10 +145,18 @@ enum codes
 #define * /
 */
 ```
+#### Added to header:
+```c
+#define 1 0 
+#define and or
+#define + -
+#define * /
+```
 
 # Includes 
 You do not have to write
-`#include`before name
+`#include` before lib name
+#### Example:
 ```c
 /*&includes
 <math.h>
@@ -85,23 +165,56 @@ You do not have to write
 <stdio.h>
 */
 ```
-#### Result
-```с
-#include <string.h>
+#### Added to header:
+```c
+#include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
 #include "your_lib.h"
 ```
 
+# Information at top of the header
+- Time of the generation
+- Amount of thу functions
+- Amount of the documentated functions
+- Check if they are all documentated
+- Amount of the structures
+- Amount of the enums
+- Functions names (sorted by alphabet)
 
-# Flags
 
-|Short flag | Long flag | Description | Default | 
-|----|----|----|----|
-| `-p` | `--pragma` | Sets protection with pragma | False|
-|`-if`|`--ifndef`| Sets protection with ifndef | True|
-| `-i` | `--info` | Adds info on top of the file | True|
-|`-enc`|`--encoding`| Sets encoding of thу file |`utf-8`|
+# Protection
+## `Pragma`
+If you want to set protection of your file with `#pragma onсe`
+run program with flag `-p`
+```bash
+python -m headgen.headgen -p True
+python -m headgen.headgen --pragma True
+```
+#### Added to header:
+```c
+#pragma once
+```
+
+## `ifndef` (Defautlt protection)
+If you want to set protection of your file with `ifndef`
+run program with flag `-if`
+
+```bash
+python -m headgen.headgen -if True
+python -m headgen.headgen -if True
+```
+#### Added to header
+```c
+// Default file is list.h
+#ifndef __LIST_H__
+#define __LIST_H__
+
+...
+
+#endif // __LIST_H__
+```
+
 
 # Links
 - [Github link](https://github.com/YoungMeatBoy/headgen.git)
