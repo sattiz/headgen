@@ -44,7 +44,10 @@ class HeadersGenerator:
 	@return str
 	"""
 	@staticmethod
-	def __get_file_name(file:str) -> str:
+	def __get_file_name(path:str) -> str:
+		import ntpath
+		head, tail = ntpath.split(path)
+		file = tail or ntpath.basename(head)
 		res = file.split(".")[0]
 		return res
 
@@ -227,10 +230,11 @@ class HeadersGenerator:
 	"""
 	def __all_files(self, dir) -> List[str]:
 		res = list()
-		for files in os.walk(dir):
-			for file in files[2]:
+		for root, subs, files in os.walk(dir):
+			for file in files:
+				print(subs)
 				if file.endswith(".c"):
-					res.append(file)
+					res.append(os.path.join(root, file))
 		return res
 
 	"""!
@@ -266,7 +270,7 @@ class HeadersGenerator:
 		res = ""
 		names = sorted(names)
 		for _,  name in enumerate(names):
-			res += "{:4g}|  ".format(_ + 1) + name + "\n"
+			res += "{:4g} | ".format(_ + 1) + name + "\n"
 		return res
 	
 	"""!
