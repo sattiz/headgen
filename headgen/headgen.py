@@ -278,7 +278,7 @@ class HeadersGenerator:
 		return res + "\n\n"
 	
 	"""!
-	@brief Creates header foк a single file
+	@brief Creates header for a single file
 	@param[in] file File for header
 	@return None
 	"""
@@ -363,9 +363,9 @@ class HeadersGenerator:
 		current_dir = os.getcwd()
 		while 1:
 			res = input("\nDo you want to search files in this directory: " + current_dir + "? <y/n> : ")
-			if res == "y":
+			if (res.lower() in ("", "y", "yes")):
 				break
-			elif res == "n":
+			elif (res.lower() in ("n", "no", "not")):
 				exit()
 			else:
 				print("Incorrect answer!")   
@@ -373,24 +373,30 @@ class HeadersGenerator:
 		print(f"Searching files in: {current_dir}...")
 		files = self.__all_files(current_dir)
 		if files:   
-			print("Headers will be created for this files: ")
+			if self.settings["ignore_main"]:
+				if "main.c" in files:
+					files.remove("main.c")
+			print("\nHeaders will be created for this files: ")
 			for file in files:
-				print(file)
+				print("  *  ", file)
+			print()
 			
 			while 1:
 				res = input("\nDo you agree? <y/n> : ")
-				if res == "y":
+				if (res.lower() in ("", "y", "yes")):
 					break
-				elif res == "n":
+				elif (res.lower() in ("n", "no", "not")):
 					exit()
 				else:
 					print("Incorrect answer!") 
 			for file in files:
+				print("Creating header for: ", file)
 				self.__create_header(file)
+			print("Finished!")
 		else:
-			print("No files were found!")
+			print("No files were found!")	
+
 		
-  
 	
 if __name__ == '__main__':
 	from argparse import ArgumentParser
@@ -401,14 +407,16 @@ if __name__ == '__main__':
 				"encoding" : "utf-8",
 				"header_ending" : ".h",
 				"add_info" : True,
+				"ignore_main": True,
 				}
 
 	parser = ArgumentParser()
 	
-	parser.add_argument("-p"  , "--pragma"       , help = "Set pragma protection",               default = False,   required = False, type = bool)
-	parser.add_argument("-if" , "--ifndef"       , help = "Set ifndef protection",               default = True,    required = False, type = bool)
-	parser.add_argument("-enc", "--encoding"     , help = "Encoding of the file",                default = "utf-8", required = False, type = str)
-	parser.add_argument("-i"  , "--add_info"     , help = "Adding auto information to a header", default = True,    required = False, type = bool)
+	parser.add_argument("-p"  , "--pragma"       , help = "Set pragma protection.",               default = False,   required = False, type = bool)
+	parser.add_argument("-if" , "--ifndef"       , help = "Set ifndef protection.",               default = True,    required = False, type = bool)
+	parser.add_argument("-enc", "--encoding"     , help = "Encoding of the file.",                default = "utf-8", required = False, type = str)
+	parser.add_argument("-i"  , "--add_info"     , help = "Adding auto information to a header.", default = True,    required = False, type = bool)
+	parser.add_argument("-im" , "--ignore_main"  , help = "Main file will be ignored.",           default = True,    required = False, type = bool)
 	args = parser.parse_args()
 
 
@@ -416,6 +424,7 @@ if __name__ == '__main__':
 	settings["protection_with_ifndef"] = args.ifndef
 	settings["encoding"] = args.encoding
 	settings["add_info"] = args.add_info
+	settings["ignore_main"] = args.ignore_main	
 	
 	generator = HeadersGenerator(**settings)
 	generator.create_headers()
