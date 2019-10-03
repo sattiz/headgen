@@ -232,7 +232,6 @@ class HeadersGenerator:
 		res = list()
 		for root, subs, files in os.walk(dir):
 			for file in files:
-				print(subs)
 				if file.endswith(".c"):
 					res.append(os.path.join(root, file))
 		return res
