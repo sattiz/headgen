@@ -184,9 +184,11 @@ class HeadersGenerator:
 	"""
 	def __find_structures(self, file: str) -> List[str]:
 		res = list()
+		found = 0
 		with open(file, "r") as opened_file:
 			for line in opened_file:
 				if "/*&structure" in line:
+					found += 1
 					while "*/" not in line:
 						line = next(opened_file)
 						if "*/" in line:
@@ -196,7 +198,7 @@ class HeadersGenerator:
 							res.append(line)
 
 
-			return res
+			return res, found
 	
 	"""!
 	@brief Finds enums in the file
@@ -205,9 +207,11 @@ class HeadersGenerator:
 	"""
 	def __find_enums(self, file: str) -> List[str]:
 		res = list()
+		found = 0
 		with open(file, "r") as opened_file:
 			for line in opened_file:
 				if "/*&enum" in line:
+					found += 1
 					while "*/" not in line:
 						line = next(opened_file)
 						if "*/" in line:
@@ -215,7 +219,7 @@ class HeadersGenerator:
 							break
 						else:
 							res.append(line)
-			return res
+			return res, found
 		
 	"""!
 	@brief finds al C files
@@ -238,7 +242,7 @@ class HeadersGenerator:
 	@param[in] List[str] f_names names of functions
 	@return str
 	"""
-	def __generate_info(self, file:str, sigs:list, documentated:int, structures:list, enums:list, f_names:str) -> str:
+	def __generate_info(self, file:str, sigs:list, documentated:int, structures:int, enums:int, f_names:str) -> str:
 		pattern = "/*\nThis header file was generated automaticaly!\n"
 		
 		data = self.__current_time()
@@ -247,8 +251,8 @@ class HeadersGenerator:
 		pattern += f"Amount of functions        : {len(sigs)}\n"
 		pattern += f"Amount of documentated     : {documentated}\n"
 		pattern += f"All functions documentated : {documentated == len(sigs)}\n"
-		pattern += f"Amount of structures       : {len(structures)}\n"
-		pattern += f"Amount of enums            : {len(enums)}\n"
+		pattern += f"Amount of structures       : {structures}\n"
+		pattern += f"Amount of enums            : {enums}\n"
 		pattern += f"Function's names: \n" + f_names + "\n*/\n\n"
 
 		return pattern
@@ -286,7 +290,7 @@ class HeadersGenerator:
 		includes = self.__string_includes(includes)
   
 		#finding structures
-		structures = self.__find_structures(file)
+		structures, found_structs = self.__find_structures(file)
   
 		#finding anв beautifying signatures
 		signatures, documentated = self.__find_functions(file)
@@ -294,7 +298,7 @@ class HeadersGenerator:
 		signatures_names = self.__beautify_names_of_signatures(signatures_names)
 		
 		#finding enums
-		enums = self.__find_enums(file)
+		enums, found_enums = self.__find_enums(file)
 		
 		#finding defines
 		defs = self.__find_defines(file)
@@ -315,8 +319,8 @@ class HeadersGenerator:
 											file, 
 											signatures,
 											documentated,
-											structures, 
-											enums, 
+											found_structs, 
+											found_enums, 
 											signatures_names
 											)
 				header.write(info)
