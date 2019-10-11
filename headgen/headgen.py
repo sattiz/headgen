@@ -230,10 +230,10 @@ class HeadersGenerator:
 	"""
 	def __all_files(self, dir) -> List[str]:
 		res = list()
-		for root, subs, files in os.walk(dir):
+		for *root, files in os.walk(dir):
 			for file in files:
 				if file.endswith(".c"):
-					res.append(os.path.join(root, file))
+					res.append(os.path.join(root[0], file))
 		return res
 
 	"""!
@@ -376,9 +376,9 @@ class HeadersGenerator:
 		print(f"Searching files in: {current_dir}...")
 		files = self.__all_files(current_dir)
 		if files:   
-			if self.settings["ignore_main"]:
-				if "main.c" in files:
-					files.remove("main.c")
+			for file in files:
+				if "main.c" in file:
+					files.remove(file)
 			print("\nHeaders will be created for this files: ")
 			for file in files:
 				print("  *  ", file)
