@@ -125,7 +125,7 @@ class HeadersGenerator:
 		res = list()
 		with open(file, "r") as opened_file:
 			for line in opened_file:
-				if "/*&includes" in line:
+				if ">includes" in line:
 					while "*/" not in line:
 						line = next(opened_file)
 						
@@ -145,15 +145,15 @@ class HeadersGenerator:
 		documentated = 0
 		with open(file, "r") as opened_file:
 			for line in opened_file:
-				if "&signature" in line:
+				if ">signature" in line:
 					sign = self.__beautify_signature(line)
 					res.append(sign)
-				if "&documentation" in line:
+				if ">documentation" in line:
 					documentated += 1
 					doc = ""
 					while True:
 						new = next(opened_file).strip()
-						if "&signature" in new: 
+						if ">signature" in new: 
 							break
 						else:
 							doc += new + "\n"
@@ -170,7 +170,7 @@ class HeadersGenerator:
 		res = list()
 		with open(file, "r") as opened_file:
 			for line in opened_file:
-				if "/*&defines" in line:
+				if ">defines" in line:
 					while "*/" not in line:
 						line = next(opened_file)
 						
@@ -190,7 +190,7 @@ class HeadersGenerator:
 		found = 0
 		with open(file, "r") as opened_file:
 			for line in opened_file:
-				if "/*&structure" in line:
+				if ">structure" in line:
 					found += 1
 					while "*/" not in line:
 						line = next(opened_file)
@@ -213,7 +213,7 @@ class HeadersGenerator:
 		found = 0
 		with open(file, "r") as opened_file:
 			for line in opened_file:
-				if "/*&enum" in line:
+				if ">enum" in line:
 					found += 1
 					while "*/" not in line:
 						line = next(opened_file)
@@ -269,7 +269,7 @@ class HeadersGenerator:
 		res = ""
 		names = sorted(names)
 		for _,  name in enumerate(names):
-			res += "{:4g} | ".format(_ + 1) + name + "\n"
+			res += "{:4g} > ".format(_ + 1) + name + "\n"
 		return res
 	
 	"""!
@@ -317,8 +317,7 @@ class HeadersGenerator:
 		with open(header_file, "w") as header:
 			   
 			# Writing info for header
-			if self.settings["add_info"]:
-				info = self.__generate_info(
+			info = self.__generate_info(
 											file, 
 											signatures,
 											documentated,
@@ -326,7 +325,7 @@ class HeadersGenerator:
 											found_enums, 
 											signatures_names
 											)
-				header.write(info)
+			header.write(info)
 					
 			if self.settings["protection_with_pragma"]:
 				header.write("#pragma once\n\n")
@@ -358,44 +357,60 @@ class HeadersGenerator:
 				header.write(f"#endif // {protection}")
 			header.write("\n\n")
 	
+	def __ask_for(self, what):
+		if self.settings["ask"]:
+			while 1:
+				res = input(what + "<y/n>?: ")
+				if (res.lower() in ("", "y", "yes")):
+					return True
+				elif (res.lower() in ("n", "no", "not")):
+					return False
+				else:
+					print("Incorrect answer!")
+		else:
+			return True
+ 
+ 
+	def __clean_ignore(self, files):
+		try:
+			with open(".headignore", "r") as file:
+				ignore_files = file.readlines()
+			for ig_file in ignore_files:
+				for file in files:
+					if ig_file in file:
+						files.remove(file)
+			return files
+		except FileNotFoundError:
+			return files
+
+	
 	"""!
 	@brief Creates headers for all files
 	""" 
 	def create_headers(self) -> None:
-		from pprint import pprint
 		current_dir = os.getcwd()
-		while 1:
-			res = input("\nDo you want to search files in this directory: " + current_dir + "? <y/n> : ")
-			if (res.lower() in ("", "y", "yes")):
-				break
-			elif (res.lower() in ("n", "no", "not")):
-				exit()
-			else:
-				print("Incorrect answer!")   
-	
-		print(f"Searching files in: {current_dir}...")
+		mes = "\nDo you want to search files in this directory: \n    * " + current_dir + "  "
+		if not self.__ask_for(mes):
+			exit()
+		
 		files = self.__all_files(current_dir)
-		if files:   
-			for file in files:
-				if "main.c" in file:
-					files.remove(file)
+		if files:
+			files = self.__clean_ignore(files)
+			
+		if files:
 			print("\nHeaders will be created for this files: ")
 			for file in files:
-				print("  *  ", file)
+				print("    *", file)
 			print()
-			
-			while 1:
-				res = input("\nDo you agree? <y/n> : ")
-				if (res.lower() in ("", "y", "yes")):
-					break
-				elif (res.lower() in ("n", "no", "not")):
-					exit()
-				else:
-					print("Incorrect answer!") 
+				
+			mes = "Do you agree "
+			if not self.__ask_for(mes):
+				exit()
+			print()
 			for file in files:
-				print("Creating header for: ", file)
+				print("Creating header for: \n    *", file)
 				self.__create_header(file)
-			print("Finished!")
+			print("\nFinished!")
 		else:
 			print("No files were found!")	
 
@@ -403,31 +418,27 @@ class HeadersGenerator:
 	
 if __name__ == '__main__':
 	from argparse import ArgumentParser
-	
+	from pprint import pprint
 	settings = {
 				"protection_with_pragma" : False,
 				"protection_with_ifndef" : True,
 				"encoding" : "utf-8",
 				"header_ending" : ".h",
-				"add_info" : True,
-				"ignore_main": True,
 				}
 
 	parser = ArgumentParser()
 	
-	parser.add_argument("-p"  , "--pragma"       , help = "Set pragma protection.",               default = False,   required = False, type = bool)
-	parser.add_argument("-if" , "--ifndef"       , help = "Set ifndef protection.",               default = True,    required = False, type = bool)
-	parser.add_argument("-enc", "--encoding"     , help = "Encoding of the file.",                default = "utf-8", required = False, type = str)
-	parser.add_argument("-i"  , "--add_info"     , help = "Adding auto information to a header.", default = True,    required = False, type = bool)
-	parser.add_argument("-im" , "--ignore_main"  , help = "Main file will be ignored.",           default = True,    required = False, type = bool)
+	parser.add_argument("-p"  , "--pragma"       , help = "Set pragma protection.",               action = "store_true",    required = False)
+	parser.add_argument("-if" , "--ifndef"       , help = "Set ifndef protection.",               action = "store_true",    required = False, default = True)
+	parser.add_argument("-enc", "--encoding"     , help = "Encoding of the file.",                default = "utf-8",        required = False, type = str)
+	parser.add_argument("-a"  , "--ask"          , help = "Wу will ask you before doing anything", action = "store_true", required = False)
 	args = parser.parse_args()
 
 
 	settings["protection_with_pragma"] = args.pragma
 	settings["protection_with_ifndef"] = args.ifndef
 	settings["encoding"] = args.encoding
-	settings["add_info"] = args.add_info
-	settings["ignore_main"] = args.ignore_main	
+	settings["ask"] = args.ask
 	
 	generator = HeadersGenerator(**settings)
 	generator.create_headers()

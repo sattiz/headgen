@@ -25,7 +25,6 @@ python3 -m headgen.headgen <flags>
 |`-if`     |`--ifndef`     | Sets protection with ifndef |  True   |
 | `-i`     |`--info`       | Adds info on top of the file|  True   |
 |`-enc`    |`--encoding`   | Sets encoding of thу file   | `utf-8` |
-|`-im`     |`--ignore_main`| Ignores main.c file         |  True   |
 
 
 # Functions
