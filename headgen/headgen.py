@@ -375,6 +375,7 @@ class HeadersGenerator:
 		try:
 			with open(".headignore", "r") as file:
 				ignore_files = file.readlines()
+				ignore_files = [_.strip() for _ in ignore_files]
 			for ig_file in ignore_files:
 				for file in files:
 					if ig_file in file:
@@ -409,7 +410,10 @@ class HeadersGenerator:
 			print()
 			for file in files:
 				print("Creating header for: \n    *", file)
-				self.__create_header(file)
+				try:
+					self.__create_header(file)
+				except:
+					print("    * Error while creating header!")
 			print("\nFinished!")
 		else:
 			print("No files were found!")	
