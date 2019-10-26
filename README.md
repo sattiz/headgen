@@ -21,19 +21,19 @@ python3 -m headgen.headgen <flags>
 
 |Short flag|   Long flag   |          Description        | Default | 
 |----------|---------------|-----------------------------|---------|
-| `-p`     |`--pragma`     | Sets protection with pragma |  False  |
+|`-p`      |`--pragma`     | Sets protection with pragma |  False  |
 |`-if`     |`--ifndef`     | Sets protection with ifndef |  True   |
-| `-i`     |`--info`       | Adds info on top of the file|  True   |
-|`-enc`    |`--encoding`   | Sets encoding of thу file   | `utf-8` |
+|`-enc`    |`--encoding`   | Sets encoding of the file   | `utf-8` |
+|`-a`      |`--ask`        | Asking before doing         | False   |
 
 
 # Functions
 
 - For automatic adding of the signature of any function
-type `//&signature`.
+type ` //>signature`.
 
 ```c
-int sum_integers(int first, int second) //&signature
+int sum_integers(int first, int second) //>signature
 {
     return first + second;
 }
@@ -46,18 +46,18 @@ int sum_integers(int first, int second);
 # Functions with documentation
 
  - Example for function with documentation
- - Add `//&documentation` before documentation
+ - Add `//>documentation` before documentation
  - Does not work inside function!
 
 ```c
-//&documentation
+//>documentation
 /*!
 @brief add two numbers
 @param[in] int first number
 @param[in] int second number
 @return int 
 */
-int sum_integers(int first, int second) //&signature
+int sum_integers(int first, int second) //>signature
 {
     return first + second;
 }
@@ -77,7 +77,7 @@ int sum_integers(int first, int second);
 # Structures
 #### Place the struct you want into:
 ```c
-/*&structure
+/* >structure
 
 place typedef struct
 or just a struct here
@@ -86,7 +86,7 @@ or just a struct here
 ```
 #### Example:
 ```c
-/*&structure
+/* >structure
 typedef struct 
 {
     int a;
@@ -108,7 +108,7 @@ typedef struct
 # Enums
 #### Place the enum you want into:
 ```c
-/*&enum
+/* >enum
 
 Place enum here
 
@@ -117,7 +117,7 @@ Place enum here
 
 #### Example
 ```c
-/*&enum
+/* >enum
 enum codes
 {
     no error,
@@ -137,7 +137,7 @@ enum codes
 # Defines
 #### Example:
 ```c
-/*&defines
+/* >defines
 #define 1 0 
 #define and or
 #define + -
@@ -157,7 +157,7 @@ You do not have to write
 `#include` before lib name
 #### Example:
 ```c
-/*&includes
+/* >includes
 <math.h>
 "your_lib.h"
 <string.h>
@@ -174,7 +174,7 @@ You do not have to write
 
 # Information at top of the header
 - Time of the generation
-- Amount of thу functions
+- Amount of the functions
 - Amount of the documentated functions
 - Check if they are all documentated
 - Amount of the structures
@@ -187,7 +187,7 @@ You do not have to write
 If you want to set protection of your file with `#pragma onсe`
 run program with flag `-p`
 ```bash
-python -m headgen.headgen -p True
+python -m headgen.headgen -p
 python -m headgen.headgen --pragma True
 ```
 #### Added to header:
@@ -201,7 +201,7 @@ run program with flag `-if`
 
 ```bash
 python -m headgen.headgen -if True
-python -m headgen.headgen -if True
+python -m headgen.headgen --ifndef True
 ```
 #### Added to header
 ```c
@@ -220,3 +220,79 @@ python -m headgen.headgen -if True
 - Email : `d2ms2nk@gmail.com`
 
 ## On any issue report in GitHub!
+
+
+
+# Example
+
+#### Base file
+```c
+/* >structure
+
+typedef struct {
+				int size;
+				int capacity;
+				double * data;
+				} array_d;
+
+*/
+
+/* >includes
+
+<stdio.h>
+"my_lib.h"
+
+*/
+
+#include "array_d.h"
+
+
+// >documentation
+/*!
+@brief Frees data in array
+@param[in] d_array * array pointer to an array
+@warning will free data inside!
+*/
+void array_free_d(array_d * array) // >signature
+{
+	free(array -> data);
+	array -> data = NULL;
+	array -> size = 0;
+	array -> capacity = 0;
+}
+```
+
+### Generated header
+```c
+/*
+This header file was generated automaticaly!
+Generated at: 26 October 2019 (26.10.2019) At: 17:24:00
+Amount of functions        : 1
+Amount of documentated     : 1
+All functions documentated : True
+Amount of structures       : 1
+Amount of enums            : 0
+Function's names: 
+   1 > array_free_d
+*/
+
+#ifndef __ARRAY_D_H__
+#define __ARRAY_D_H__
+
+#include <stdio.h>
+#include "my_lib.h"
+
+typedef struct {
+				int size;
+				int capacity;
+				double * data;
+				} array_d;
+
+/*!
+@brief Frees data in array
+@param[in] d_array * array pointer to an array
+@warning will free data inside!
+*/
+void array_free_d(array_d * array);
+
+```
