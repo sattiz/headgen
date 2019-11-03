@@ -246,7 +246,7 @@ class HeadersGenerator:
 	@return str
 	"""
 	def __generate_info(self, file:str, sigs:list, documentated:int, structures:int, enums:int, f_names:str) -> str:
-		pattern = "/*\nThis header file was generated automaticaly!\n"
+		pattern = "/*\nThis header file was generated automatically!\n"
 		
 		data = self.__current_time()
 		pattern += f"Generated at: {data}\n"
